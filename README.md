@@ -60,6 +60,16 @@ class MyListener
 end
 ```
 
+To unsubscribe:
+
+```ruby
+    Flirt.unsubscribe self, :picked, with: :picked_callback
+    # or the alias
+    Flirt.unlisten self, :picked, with: :picked_callback
+end
+```
+
+
 Sytactic sugar for subscription has been provided in the form of a module:
 
 ```ruby
@@ -70,6 +80,12 @@ class MyListener
         subscribe_to :picked, with: :picked_callback
         # or the alias
         listen_to :picked, with: :picked_callback
+    end
+    
+    def before_destroy
+        unsubscribe_from :picked, with: :picked_callback
+        # or the alias
+        forget :picked, with: :picked_callback
     end
 
     def picked_callback(event_data)
