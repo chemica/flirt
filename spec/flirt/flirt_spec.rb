@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'flirt/flirt_test_classes'
+#require 'flirt/flirt_test_classes'
 
 describe Flirt do
 
@@ -8,26 +8,33 @@ describe Flirt do
         let(:response)    { { topping: "cream" } }
         let(:event)       { :pancake_fried }
         let(:wrong_event) { :spud_baked }
-        let!(:listener)   { TestListener.new(event) }
+        let(:callback)    { :respond }
+        let!(:listener)   { Object.new }
+
+        before(:each) do
+            block_event = event
+            block_callback = callback
+            listener.instance_eval { Flirt.listen self, block_event, with: block_callback }
+        end
 
         it "listens to the correct broadcast event" do
+            expect(listener).to receive(callback).with(response)
             Flirt.broadcast event, response
-            expect(listener.responded).to eq(response)
         end
 
         it "listens to the correct publish event" do
+            expect(listener).to receive(callback).with(response)
             Flirt.publish event, response
-            expect(listener.responded).to eq(response)
         end
 
         it "doesn't listen to the wrong broadcast event" do
+            expect(listener).not_to receive(callback).with(response)
             Flirt.broadcast wrong_event, response
-            expect(listener.responded).to be_nil
         end
 
         it "doesn't listen to the wrong publish event" do
+            expect(listener).not_to receive(callback).with(response)
             Flirt.broadcast wrong_event, response
-            expect(listener.responded).to be_nil
         end
     end
 end
