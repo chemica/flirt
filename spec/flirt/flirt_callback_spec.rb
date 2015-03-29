@@ -5,7 +5,7 @@ describe Flirt::Callback do
         Flirt.enable
     end
 
-    describe "when instantiated with an object and callback" do
+    describe "when instantiated with an object and callback name" do
 
         let(:listener) { Object.new }
         let(:callback_name) { :call_me }
@@ -28,6 +28,11 @@ describe Flirt::Callback do
                 expect(listener).to receive(callback_name).with(event_data)
                 callback.call(event_data)
             end
+        end
+
+        it "tests equality if object and callback are the same" do
+            other_callback = Flirt::Callback.new object: listener, callback_name: callback_name
+            expect(callback).to eq(other_callback)
         end
     end
 end

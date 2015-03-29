@@ -12,5 +12,9 @@ module Flirt
         def call(event_data)
             object.send callback_name, event_data
         end
+
+        def ==(other_callback)
+            object == other_callback.object && callback_name == other_callback.callback_name
+        end
     end
 end
