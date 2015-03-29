@@ -12,7 +12,9 @@ Bundler.setup
 require 'flirt'
 
 RSpec.configure do |config|
+
   config.run_all_when_everything_filtered = true
+
   config.filter_run :focus
 
   config.before(:each) do
@@ -24,4 +26,5 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = 'random'
+
 end
