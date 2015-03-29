@@ -49,23 +49,21 @@ describe Flirt::Listener do
         it "subscribes to an event" do
             block_event = event
             block_callback_name = callback_name
+            expect(Flirt).to receive(:subscribe).with(test_class, event, { with: callback_name })
             test_class.class_eval do
                 extend Flirt::Listener
                 subscribe_to block_event, with: block_callback_name
             end
-            expect(test_class).to receive(callback_name).with(event_data)
-            Flirt.broadcast event, event_data
         end
 
         it "listens to an event" do
             block_event = event
             block_callback_name = callback_name
+            expect(Flirt).to receive(:subscribe).with(test_class, event, { with: callback_name })
             test_class.class_eval do
                 extend Flirt::Listener
                 listen_to block_event, with: block_callback_name
             end
-            expect(test_class).to receive(callback_name).with(event_data)
-            Flirt.broadcast event, event_data
         end
     end
 end
