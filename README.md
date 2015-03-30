@@ -168,9 +168,13 @@ With such a simple syntax, it's easy to understand what Flirt is doing when you 
 
 There is no set-up beyond requiring the gem.
 
-Events are only allowed to by represented as symbols. Using strings or other objects will result in an error, helping to spot and squash certain kinds of bugs early.
+Events are only allowed to be represented as symbols. Using strings or other objects will result in an exception, helping to spot and squash certain kinds of bugs early.
 
-Only one object - Flirt - can be listened to, reducing the danger of implicit coupling between publishers and subscribers.
+Only one object - Flirt - can be listened to, reducing the danger of implicit coupling between publishers and subscribers. Subscribers listen to events, not objects.
+
+### Flirt has a great name
+
+Seriously, why use any other gem when you could be flirting instead?
 
 ##Testing
 
@@ -208,6 +212,7 @@ class MiniTest::Unit::TestCase
 end
 ```
 
+Another gem will probably appear soon to wrap common testing patterns around the use of Flirt. Watch this space.
 
 
 ## Contributing
