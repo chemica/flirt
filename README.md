@@ -55,7 +55,6 @@ end
 
 ```ruby
     Flirt.unsubscribe self, :picked, with: :picked_callback
-end
 ```
 
 
