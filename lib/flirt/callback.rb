@@ -2,6 +2,7 @@
 # and contains a method for calling the callback.
 
 module Flirt
+
     class Callback
 
         attr_accessor :object, :callback_name
