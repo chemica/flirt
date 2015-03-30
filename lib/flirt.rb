@@ -16,7 +16,6 @@ module Flirt
                 callback.call(event_data)
             end
         end
-        alias_method :broadcast, :publish
 
 
         def subscribe(object, event_name, options = {})
@@ -25,7 +24,6 @@ module Flirt
                                            callback_name: options[:with]
             add_callback(event_name, callback)
         end
-        alias_method :listen, :subscribe
 
 
         def unsubscribe(object, event_name, options = {})
@@ -34,7 +32,6 @@ module Flirt
                                            callback_name: options[:with]
             remove_callback(event_name, callback)
         end
-        alias_method :unlisten, :unsubscribe
 
 
         def enable
@@ -79,10 +76,11 @@ module Flirt
 
 
         def check_subscription_arguments(event_name, object, options)
-            raise ArgumentError.new("You must pass a callback") unless    options[:with].is_a? Symbol
-            raise ArgumentError.new("You must pass an object")  if        object.nil?
+            raise ArgumentError.new("You must pass a callback")    unless options[:with].is_a? Symbol
             raise ArgumentError.new("You must pass an event name") unless event_name.is_a? Symbol
+            raise ArgumentError.new("You must pass an object")     if     object.nil?
         end
 
     end
+
 end

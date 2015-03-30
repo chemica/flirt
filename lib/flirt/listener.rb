@@ -32,19 +32,18 @@
 #
 
 module Flirt
+
     module Listener
+
         def subscribe_to(event_name, opts = {})
-            raise ArgumentError.new("You must pass a callback") unless opts[:with].is_a? Symbol
             Flirt.subscribe self, event_name, opts
         end
-        alias_method :listen_to, :subscribe_to
 
 
         def unsubscribe_from(event_name, opts = {})
-            raise ArgumentError.new("You must pass a callback") unless opts[:with].is_a? Symbol
             Flirt.unsubscribe self, event_name, opts
         end
-        alias_method :forget, :unsubscribe_from
 
     end
+
 end

@@ -27,29 +27,23 @@ describe Flirt::Listener do
         end
 
 
-        [:listen_to, :subscribe_to].each do |method|
-            it "subscribes to an event with ##{method}" do
-                block_event = event
-                block_callback_name = callback_name
-                expect(Flirt).to receive(:subscribe).with(test_instance, event, { with: callback_name })
-                test_instance.instance_eval do
-                    send method, block_event, with: block_callback_name
-                end
-
+        it "subscribes to an event with #subscribe_to" do
+            block_event = event
+            block_callback_name = callback_name
+            expect(Flirt).to receive(:subscribe).with(test_instance, event, { with: callback_name })
+            test_instance.instance_eval do
+                subscribe_to block_event, with: block_callback_name
             end
 
         end
 
 
-        [:forget, :unsubscribe_from].each do |method|
-            it "unsubscribes from an event with ##{method}" do
-                block_event = event
-                block_callback_name = callback_name
-                expect(Flirt).to receive(:unsubscribe).with(test_instance, event, { with: callback_name })
-                test_instance.instance_eval do
-                    send method, block_event, with: block_callback_name
-                end
-
+        it "unsubscribes from an event with #unsubscribe_from" do
+            block_event = event
+            block_callback_name = callback_name
+            expect(Flirt).to receive(:unsubscribe).with(test_instance, event, { with: callback_name })
+            test_instance.instance_eval do
+                unsubscribe_from block_event, with: block_callback_name
             end
 
         end
@@ -68,31 +62,25 @@ describe Flirt::Listener do
         let(:test_class)          { Class.new }
 
 
-        [:listen_to, :subscribe_to].each do |method|
-            it "subscribes to an event with ##{method}" do
-                block_event = event
-                block_callback_name = callback_name
-                expect(Flirt).to receive(:subscribe).with(test_class, event, { with: callback_name })
-                test_class.class_eval do
-                    extend Flirt::Listener
-                    send method, block_event, with: block_callback_name
-                end
-
+        it "subscribes to an event with #subscribe_to" do
+            block_event = event
+            block_callback_name = callback_name
+            expect(Flirt).to receive(:subscribe).with(test_class, event, { with: callback_name })
+            test_class.class_eval do
+                extend Flirt::Listener
+                subscribe_to block_event, with: block_callback_name
             end
 
         end
 
 
-        [:forget, :unsubscribe_from].each do |method|
-            it "unsubscribes from an event with ##{method}" do
-                block_event = event
-                block_callback_name = callback_name
-                expect(Flirt).to receive(:unsubscribe).with(test_class, event, { with: callback_name })
-                test_class.class_eval do
-                    extend Flirt::Listener
-                    send method, block_event, with: block_callback_name
-                end
-
+        it "unsubscribes from an event with #unsubscribe_from" do
+            block_event = event
+            block_callback_name = callback_name
+            expect(Flirt).to receive(:unsubscribe).with(test_class, event, { with: callback_name })
+            test_class.class_eval do
+                extend Flirt::Listener
+                unsubscribe_from block_event, with: block_callback_name
             end
 
         end
