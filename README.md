@@ -148,6 +148,68 @@ Flirt.clear
 
 This operation cannot be undone.
 
+##Motivation
+
+Ruby projects (and Rails projects in particular) can easily become a mess of tightly coupled code. The Rails framework almost encourages the idea of 'fat models', with features like callbacks (often touching other models and thus coupling themselves) and concerns (that use modules to hide code that often should really have its own class) to name but two.
+
+The observer (or pub/sub) pattern can help decouple code, decompose large classes and allow for smaller classes with a single purpose. This promotes easy testing, readability, maintainability and eventually stability of your code.
+
+So why another gem, considering there are already several gems and a Ruby language feature that implement this pattern?
+
+### Flirt is tiny
+
+Flirt gives you just enough to use and test the pub/sub pattern with the minimum of cruft. The number of objects is kept to a minimum for speed and ease of debugging. The extendable Listener module has only the two methods you need to use.
+
+### Flirt use is obvious and readable
+
+With such a simple syntax, it's easy to understand what Flirt is doing when you revisit your code again in three months.
+
+### Flirt is opinionated
+
+There is no set-up beyond requiring the gem.
+
+Events are only allowed to by represented as symbols. Using strings or other objects will result in an error, helping to spot and squash certain kinds of bugs early.
+
+Only one object - Flirt - can be listened to, reducing the danger of implicit coupling between publishers and subscribers.
+
+##Testing
+
+In order to test units of behaviour, you probably want to disable Flirt and test each unit of your code in isolation. You can always enable Flirt or individual events in your test file for integration tests.
+
+You'll want to clear Flirt before each test as well, to stop callbacks building up.
+
+If you're using RSpec, you probably want to disable and clear Flirt in the before block in ```spec/spec_helper.rb```:
+
+```ruby
+
+RSpec.configure do |config|
+
+  config.before(:each) do
+    Flirt.disable
+    Flirt.clear
+  end
+  ...
+```
+
+If you're using MiniTest, something like this might help:
+
+
+```ruby
+module FlirtMinitestPlugin
+  def before_setup
+    super
+    Flirt.disable
+    Flirt.clear
+  end
+end
+
+class MiniTest::Unit::TestCase
+  include FlirtMinitestPlugin
+end
+```
+
+
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/flirt/fork )
