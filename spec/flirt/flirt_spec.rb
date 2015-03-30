@@ -16,85 +16,75 @@ describe Flirt do
         let!(:listener)   { Object.new }
 
 
-        [:subscribe, :listen].each do |method|
+        describe "and a listener added with #subscribe" do
 
-            describe "and a listener added with ##{method}" do
+            before(:each) do
+                Flirt.subscribe listener, event, with: callback
+            end
+
+
+            it "listens to the correct event published with #publish" do
+                expect(listener).to receive(callback).with(response)
+                Flirt.publish event, response
+            end
+
+
+            it "doesn't listen to the wrong event published with #publish" do
+                expect(listener).not_to receive(callback)
+                Flirt.publish wrong_event, response
+            end
+
+
+            describe "when disabled" do
+
+                before(:each) { Flirt.disable }
+
+                after(:each) { Flirt.enable }
+
+
+                it "doesn't publish an event" do
+                    expect(listener).not_to receive(callback)
+                    Flirt.publish event, response
+                end
+
+            end
+
+
+            describe "when cleared" do
+
+                let(:callback2)    { :respond2 }
+
 
                 before(:each) do
-                    Flirt.send method, listener, event, with: callback
+                    Flirt.subscribe listener, event, with: callback2
+                    Flirt.clear
                 end
 
 
-                [:publish, :broadcast].each do |method|
-
-                    it "listens to the correct event published with ##{method}" do
-                        expect(listener).to receive(callback).with(response)
-                        Flirt.send method, event, response
-                    end
-
-
-                    it "doesn't listen to the wrong event published with ##{method}" do
-                        expect(listener).not_to receive(callback)
-                        Flirt.send method, wrong_event, response
-                    end
-
-
-                    describe "when disabled" do
-
-                        before(:each) { Flirt.disable }
-
-                        after(:each) { Flirt.enable }
-
-
-                        it "doesn't broadcast an event published with ##{method}" do
-                            expect(listener).not_to receive(callback)
-                            Flirt.send method, event, response
-                        end
-
-                    end
-
+                it "forgets listeners" do
+                    expect(listener).not_to receive(callback)
+                    expect(listener).not_to receive(callback2)
+                    Flirt.publish event, response
                 end
 
-                describe "when cleared" do
-
-                    let(:callback2)    { :respond2 }
+            end
 
 
-                    before(:each) do
-                        Flirt.listen listener, event, with: callback2
-                        Flirt.clear
-                    end
+            describe "when another listener is added and the original is unsubscribed" do
+
+                let(:callback2)    { :respond2 }
 
 
-                    it "forgets listeners" do
-                        expect(listener).not_to receive(callback)
-                        expect(listener).not_to receive(callback2)
-                        Flirt.publish event, response
-                    end
-
+                before(:each) do
+                    Flirt.subscribe listener, event, with: callback2
+                    Flirt.unsubscribe listener, event, with: callback
                 end
 
-                [:unsubscribe, :unlisten].each do |method|
 
-                    describe "when another listener is added and the original unsubscribed with ##{method}" do
-
-                        let(:callback2)    { :respond2 }
-
-
-                        before(:each) do
-                            Flirt.listen listener, event, with: callback2
-                            Flirt.send method, listener, event, with: callback
-                        end
-
-
-                        it "it forgets the original listener but remembers the new one" do
-                            expect(listener).not_to receive(callback)
-                            expect(listener).to receive(callback2).with(response)
-                            Flirt.broadcast event, response
-                        end
-
-                    end
-
+                it "it forgets the original listener but remembers the new one" do
+                    expect(listener).not_to receive(callback)
+                    expect(listener).to receive(callback2).with(response)
+                    Flirt.publish event, response
                 end
 
             end

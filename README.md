@@ -29,20 +29,12 @@ Or install it yourself as:
 
 ## Usage
 
-To publish/broadcast an event:
+To publish an event:
 
-```ruby
-event_data = { fruit: "apple" }
-Flirt.broadcast :picked, event_data
-```
-    
-Or:
 
 ```ruby
 Flirt.publish :picked, event_data
 ```
-    
-(These two versions are aliases)
 
 To subscribe:
 
@@ -50,8 +42,6 @@ To subscribe:
 class MyListener
     def initialize
         Flirt.subscribe self, :picked, with: :picked_callback
-        # or the alias
-        Flirt.listen self, :picked, with: :picked_callback
     end
 
     def picked_callback(event_data)
@@ -64,13 +54,11 @@ To unsubscribe:
 
 ```ruby
     Flirt.unsubscribe self, :picked, with: :picked_callback
-    # or the alias
-    Flirt.unlisten self, :picked, with: :picked_callback
 end
 ```
 
 
-Sytactic sugar for subscription has been provided in the form of a module:
+Syntactic sugar for subscription and unsubscription has been provided in the form of a module:
 
 ```ruby
 class MyListener
@@ -78,14 +66,10 @@ class MyListener
 
     def initialize
         subscribe_to :picked, with: :picked_callback
-        # or the alias
-        listen_to :picked, with: :picked_callback
     end
     
     def before_destroy
         unsubscribe_from :picked, with: :picked_callback
-        # or the alias
-        forget :picked, with: :picked_callback
     end
 
     def picked_callback(event_data)
@@ -101,14 +85,14 @@ class MyListener
     extend Flirt::Listener
 
     subscribe_to :picked, with: :picked_callback
-    # or the alias
-    listen_to :picked, with: :picked_callback
 
     def self.picked_callback(event_data)
         puts "The #{event_data[:fruit]} has been picked"
     end
 end
 ```
+
+```unsubscribe_from``` can technically be used in the class context, but probably doesn't have as much use.
 
 Flirt defaults to 'enabled'. Switch Flirt off:
 
@@ -137,7 +121,7 @@ Flirt.enable only: [:topping_added, :pancake_flipped]
 Enabled status affects broadcast/publish, listeners can still be added and will be
 remembered. No listeners will be removed.
 
-Clear all listeners
+Clear all listeners:
 
 ```ruby
 Flirt.clear
