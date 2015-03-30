@@ -9,7 +9,7 @@ require 'rubygems'
 require 'bundler/setup'
 Bundler.setup
 
-require 'byebug'
+#require 'byebug'
 require 'flirt'
 
 RSpec.configure do |config|
