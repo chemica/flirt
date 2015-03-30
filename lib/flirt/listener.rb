@@ -7,8 +7,6 @@
 #
 #     def initialize
 #         subscribe_to :picked, with: :picked_callback
-#         # or the alias
-#         listen_to :picked, with: :picked_callback
 #     end
 #
 #     def picked_callback(event_data)
@@ -22,8 +20,6 @@
 #     extend Flirt::Listener
 #
 #     subscribe_to :picked, with: :picked_callback
-#     # or the alias
-#     listen_to :picked, with: :picked_callback
 #
 #     def self.picked_callback(event_data)
 #         puts "The #{event_data[:fruit]} has been picked"

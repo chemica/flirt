@@ -33,6 +33,7 @@ To publish an event:
 
 
 ```ruby
+event_data = { fruit: 'apple' }
 Flirt.publish :picked, event_data
 ```
 
@@ -118,7 +119,7 @@ TODO: Enable only a set of events:
 Flirt.enable only: [:topping_added, :pancake_flipped]
 ```
 
-Enabled status affects broadcast/publish, listeners can still be added and will be
+Enabled status affects publishing only, listeners can still be added and will be
 remembered. No listeners will be removed.
 
 Clear all listeners:
