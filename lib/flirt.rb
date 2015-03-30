@@ -11,7 +11,10 @@ module Flirt
 
         def publish(event_name, event_data)
             return if disabled
+            return if disabled_list && disabled_list.include?(event_name)
+            return if enabled_list && !enabled_list.include?(event_name)
             raise ArgumentError.new("Event name must be a symbol") unless event_name.is_a? Symbol
+
             (callbacks[event_name] || []).each do |callback|
                 callback.call(event_data)
             end
@@ -34,13 +37,23 @@ module Flirt
         end
 
 
-        def enable
+        def enable(opts = {})
+            clear_event_lists
+            if opts[:only]
+                set_enabled opts[:only]
+            end
             self.disabled = false
         end
 
 
-        def disable
-            self.disabled = true
+        def disable(opts = {})
+            clear_event_lists
+            if opts[:only]
+                set_disabled opts[:only]
+                self.disabled = false
+            else
+                self.disabled = true
+            end
         end
 
 
@@ -52,7 +65,7 @@ module Flirt
         private
 
         attr_reader   :callbacks
-        attr_accessor :disabled
+        attr_accessor :disabled, :disabled_list, :enabled_list
 
 
         def callbacks
@@ -65,6 +78,26 @@ module Flirt
             callbacks[event_name] << callback
         end
 
+
+        def set_disabled(events)
+            self.disabled_list = wrap_event_list(events)
+        end
+
+
+        def set_enabled(events)
+            self.enabled_list = wrap_event_list(events)
+        end
+
+
+        def clear_event_lists
+            self.enabled_list  = nil
+            self.disabled_list = nil
+        end
+
+
+        def wrap_event_list(events)
+            events.is_a?(Array) ? events : [events]
+        end
 
         def remove_callback(event_name, callback_to_delete)
             return unless callbacks[event_name]

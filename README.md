@@ -29,7 +29,7 @@ Or install it yourself as:
 
 ## Usage
 
-To publish an event:
+###To publish an event:
 
 
 ```ruby
@@ -37,7 +37,7 @@ event_data = { fruit: 'apple' }
 Flirt.publish :picked, event_data
 ```
 
-To subscribe:
+###To subscribe:
 
 ```ruby
 class MyListener
@@ -51,7 +51,7 @@ class MyListener
 end
 ```
 
-To unsubscribe:
+###To unsubscribe:
 
 ```ruby
     Flirt.unsubscribe self, :picked, with: :picked_callback
@@ -95,7 +95,7 @@ end
 
 ```unsubscribe_from``` can technically be used in the class context, but probably doesn't have as much use.
 
-Flirt defaults to 'enabled'. Switch Flirt off:
+###Flirt defaults to 'enabled'. Switch Flirt off:
 
 ```ruby
 Flirt.disable
@@ -107,26 +107,47 @@ And back on again:
 Flirt.enable
 ```
 
-TODO: Disable only a set of events:
+Enabled status affects publishing only, listeners can still be added and will be
+remembered. No listeners will be removed.
+
+###Disable only a set of events:
 
 ```ruby
 Flirt.disable only: [:pancake_cooked, :picked]
 ```
 
-TODO: Enable only a set of events:
+###Enable only a set of events:
 
 ```ruby
 Flirt.enable only: [:topping_added, :pancake_flipped]
 ```
 
-Enabled status affects publishing only, listeners can still be added and will be
-remembered. No listeners will be removed.
+Disabling and enabling sets of events is not cumulative. The new set of events will overwrite all previous calls.
+For example:
 
-Clear all listeners:
+```ruby
+Flirt.disable only: [:pancake_cooked, :picked]
+Flirt.disable only: [:flipped]
+```
+
+The above code will leave only ```:flipped``` disabled.
+
+```ruby
+Flirt.enable only: [:flipped, :picked]
+Flirt.disable only: [:flipped]
+```
+
+The above code will also leave only ```:flipped``` disabled.
+
+Calling ```Flirt.enable``` or ```Flirt.disable``` will clear any previously set enabled or disabled events.
+
+###Clear all listeners:
 
 ```ruby
 Flirt.clear
 ```
+
+This operation cannot be undone.
 
 ## Contributing
 
