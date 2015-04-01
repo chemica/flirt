@@ -168,13 +168,21 @@ With such a simple syntax, it's easy to understand what Flirt is doing when you 
 
 There is no set-up beyond requiring the gem.
 
-Events are only allowed to be represented as symbols. Using strings or other objects will result in an exception, helping to spot and squash certain kinds of bugs early.
+Events are canonly be represented as symbols, helping to spot and squash certain kinds of bugs early.
 
 Only one object - Flirt - can be listened to, reducing the danger of implicit coupling between publishers and subscribers. Subscribers listen to events, not objects.
 
 ### Flirt has a great name
 
 Seriously, why use any other gem when you could be flirting instead?
+
+## Antipatterns
+
+The ```clear```, ```enable``` and ```disable``` features are provided to aid testing. If you find yourself reaching for them in production code you're probably using the wrong pattern, or you may need to re-think your architecture.
+
+Have a look at decorators if you need to add different functionality to a model depending on where it's called.
+
+Alternatively, change the location in the code where you publish your events. A common move is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions.
 
 ##Testing
 
