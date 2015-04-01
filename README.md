@@ -172,6 +172,10 @@ Events are canonly be represented as symbols, helping to spot and squash certain
 
 Only one object - Flirt - can be listened to, reducing the danger of implicit coupling between publishers and subscribers. Subscribers listen to events, not objects.
 
+### Flirt doesn't use threads or persistence frameworks. 
+
+This means events are fired in a deterministic way, without over-obfuscating the control flow for debug tools. You can depend on listeners being called before, for example, the end of a controler call. If you wish to delegate a task to a worker task (like Sidekiq for example) it's easy enough to do in a listener.
+
 ### Flirt has a great name
 
 Seriously, why use any other gem when you could be flirting instead?
@@ -182,7 +186,24 @@ The ```clear```, ```enable``` and ```disable``` features are provided to aid tes
 
 Have a look at decorators if you need to add different functionality to a model depending on where it's called.
 
-Alternatively, change the location in the code where you publish your events. A common move is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions.
+Alternatively, change the location in the code where you publish your events. A common move in Rails is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions. This move can also help break some event loops, where a side effect of one event causes another event to fire and vice versa.
+
+If you find yourself creating multiple instances of an object which acts as a listener, ensure you unsubscribe from any events when you're done with it. If you don't, Ruby will keep a reference to that object for the lifetime of the application. This will result in a memory lsesteak.
+
+## Set-up
+
+While no set-up is required for Flirt use, there is a quirk of Rails autoloading that could cause issues.
+
+If you wish to use listeners on a class level, you must make sure the class is loaded. If the class definition has not been required, the listener will not be registered.
+
+Rails auto-loads classes when they're first referenced so unless you take an extra step, class-level listeners won't ever be loaded.
+
+Placing the following code in an initializer will ensure that anything you place in the ```#{Rails.root}/app/listeners``` directory will get loaded when the Rails framework boots up:
+
+```ruby
+# /config/initializers/flirt.rb
+Dir["#{Rails.root}/app/listeners/**/*.rb"].each {|file| require file }
+```
 
 ##Testing
 
