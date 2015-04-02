@@ -180,15 +180,15 @@ This means events are fired in a deterministic way, without over-obfuscating the
 
 Seriously, why use any other gem when you could be flirting instead?
 
-## Antipatterns
+## Antipatterns amd misuse
 
 The ```clear```, ```enable``` and ```disable``` features are provided to aid testing. If you find yourself reaching for them in production code you're probably using the wrong pattern, or you may need to re-think your architecture.
 
 Have a look at decorators if you need to add different functionality to a model depending on where it's called.
 
-Alternatively, change the location in the code where you publish your events. A common move in Rails is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions. This move can also help break some event loops, where a side effect of one event causes another event to fire and vice versa.
+Alternatively, change the location in the code where you publish your events. A useful move in Rails is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions. This move can also help break some event loops, where a side effect of one event causes another event to fire and vice versa.
 
-If you find yourself creating multiple instances of an object which acts as a listener, ensure you unsubscribe from any events when you're done with it. If you don't, Ruby will keep a reference to that object for the lifetime of the application. This will result in a memory lsesteak.
+If you find yourself creating and destroying multiple listener objects, ensure you unsubscribe from any events when you're done with them. If you don't, Ruby will keep references to the objects for the lifetime of the application. This will most likely result in memory leaks.
 
 ## Set-up
 
