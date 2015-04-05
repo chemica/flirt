@@ -1,5 +1,4 @@
 require 'spec_helper'
-#require 'flirt/flirt_test_classes'
 
 describe Flirt do
 

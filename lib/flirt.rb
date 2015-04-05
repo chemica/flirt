@@ -23,8 +23,9 @@ module Flirt
 
         def subscribe(object, event_name, options = {})
             check_subscription_arguments(event_name, object, options)
-            callback = Flirt::Callback.new object: object,
-                                           callback_name: options[:with]
+            callback = Flirt::Callback.new object:        object,
+                                           callback_name: options[:with],
+                                           weakref:       options[:weakref]
             add_callback(event_name, callback)
         end
 

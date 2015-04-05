@@ -182,13 +182,33 @@ Seriously, why use any other gem when you could be flirting instead?
 
 ## Antipatterns amd misuse
 
+#### Clearing and disabling
+
 The ```clear```, ```enable``` and ```disable``` features are provided to aid testing. If you find yourself reaching for them in production code you're probably using the wrong pattern, or you may need to re-think your architecture.
 
 Have a look at decorators if you need to add different functionality to a model depending on where it's called.
 
 Alternatively, change the location in the code where you publish your events. A useful move in Rails is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions. This move can also help break some event loops, where a side effect of one event causes another event to fire and vice versa.
 
-If you find yourself creating and destroying multiple listener objects, ensure you unsubscribe from any events when you're done with them. If you don't, Ruby will keep references to the objects for the lifetime of the application. This will most likely result in memory leaks.
+#### Garbage collection
+
+If you find yourself creating and throwing away multiple listener objects, Ruby will still keep references to those objects for the lifetime of the application.  This can result in memory leaks, as Ruby will not be able to garbage collect the listeners. To avoid this situation, ensure you unsubscribe from any events when you're done with them. Alternatively, on subscription you can request that Flirt uses weak references:
+
+```ruby
+Flirt.subscribe object, :flipped, with: :flipped_callback, weakref: true 
+```
+
+This means that garbage collection can target the listener. Be careful though, as the listener will be garbage collected unless you keep a reference to it somewhere else. This kind of code would be problematic:
+
+```ruby
+def set_listener
+  Flirt.subscribe TossedListener.new, :tossed, with: :tossed_callback, weakref: true
+end
+```
+
+This will lead to intermittent bugs as nothing keeps a reference to ```TossedListener.new```. The listener will work until garbage collection kicks in.
+
+Flirt defaults to using strong references to ensure consistent behaviour.
 
 ## Set-up
 
