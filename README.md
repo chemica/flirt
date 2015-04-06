@@ -168,13 +168,15 @@ With such a simple syntax, it's easy to understand what Flirt is doing when you 
 
 There is no set-up beyond requiring the gem.
 
-Events are canonly be represented as symbols, helping to spot and squash certain kinds of bugs early.
+Events are can only be represented as symbols.
 
-Only one object - Flirt - can be listened to, reducing the danger of implicit coupling between publishers and subscribers. Subscribers listen to events, not objects.
+Only one parameter can be passed as event data.
+
+Only one object (Flirt itself) can be listened to, reducing the danger of implicit coupling between publishers and subscribers. Subscribers listen to events, not objects.
 
 ### Flirt doesn't use threads or persistence frameworks. 
 
-This means events are fired in a deterministic way, without over-obfuscating the control flow for debug tools. You can depend on listeners being called before, for example, the end of a controler call. If you wish to delegate a task to a worker task (like Sidekiq for example) it's easy enough to do in a listener.
+This means events are fired in a deterministic way, without over-obfuscating the control flow for debug tools. You can depend on listeners being called before, for example, the end of a controler call. If you wish to delegate a task to a worker thread (like Sidekiq for example) it's easy enough to do in a listener and you're not tied to any particular implementation.
 
 ### Flirt has a great name
 
@@ -188,7 +190,7 @@ The ```clear```, ```enable``` and ```disable``` features are provided to aid tes
 
 Have a look at decorators if you need to add different functionality to a model depending on where it's called.
 
-Alternatively, change the location in the code where you publish your events. A useful move in Rails is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions. This move can also help break some event loops, where a side effect of one event causes another event to fire and vice versa.
+Alternatively, change the location in the code where you publish your events. A useful move in Rails is from the model to the controller, to avoid admin or other background updates triggering events that should only be based on user actions. This kind of move can also help break some event or callback loops, where a side effect of one event causes another event to fire and vice versa. ActiveRecord save and validate callbacks (and thus events based on them) are particularly prone to this.
 
 #### Garbage collection
 
