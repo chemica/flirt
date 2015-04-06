@@ -19,7 +19,7 @@ RSpec.configure do |config|
   config.filter_run :focus
 
   config.before(:each) do
-      Flirt.clear
+    Flirt.clear
   end
 
   # Run specs in random order to surface order dependencies. If you find an
