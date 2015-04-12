@@ -182,7 +182,7 @@ This means events are fired in a deterministic way, without over-obfuscating the
 
 Seriously, why use any other gem when you could be flirting instead?
 
-## Antipatterns amd misuse
+## Antipatterns and misuse
 
 #### Clearing and disabling
 
