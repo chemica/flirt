@@ -1,9 +1,9 @@
 # Flirt
 
-This Ruby gem is a brutally simple take on the observer pattern.
+A brutally simple take on the observer pattern.
 
-Flirt acts as a single point to which events can be sent and listeners 
-can be registered, in order to promote extreme decoupling between components.
+Flirt acts as a single point to which events can be sent (published) and listeners 
+can be registered (subscribed), in order to promote extreme decoupling between components.
 
 
 ## Installation
@@ -23,7 +23,7 @@ $ bundle
 Or install it yourself as:
 
 ```ruby
-    $ gem install flirt
+$ gem install flirt
 ```
 
 
@@ -31,11 +31,11 @@ Or install it yourself as:
 
 ###To publish an event:
 
-
 ```ruby
 event_data = { fruit: 'apple' }
 Flirt.publish :picked, event_data
 ```
+
 
 ###To subscribe:
 
@@ -51,12 +51,12 @@ class MyListener
 end
 ```
 
+
 ###To unsubscribe:
 
 ```ruby
   Flirt.unsubscribe self, :picked, with: :picked_callback
 ```
-
 
 Syntactic sugar for subscription and unsubscription has been provided in the form of a module:
 
@@ -94,6 +94,7 @@ end
 
 ```unsubscribe_from``` can technically be used in the class context, but probably doesn't have as much use.
 
+
 ###Flirt defaults to 'enabled'. Switch Flirt off:
 
 ```ruby
@@ -109,11 +110,13 @@ Flirt.enable
 Enabled status affects publishing only, listeners can still be added and will be
 remembered. No listeners will be removed.
 
+
 ###Disable only a set of events:
 
 ```ruby
 Flirt.disable only: [:pancake_cooked, :picked]
 ```
+
 
 ###Enable only a set of events:
 
@@ -133,12 +136,13 @@ The above code will leave only ```:flipped``` disabled.
 
 ```ruby
 Flirt.enable only: [:flipped, :picked]
-Flirt.disable only: [:flipped]
+Flirt.enable only: [:flipped]
 ```
 
-The above code will also leave only ```:flipped``` disabled.
+The above code will leave only ```:flipped``` enabled.
 
 Calling ```Flirt.enable``` or ```Flirt.disable``` will clear any previously set enabled or disabled events.
+
 
 ###Clear all listeners:
 
@@ -146,7 +150,8 @@ Calling ```Flirt.enable``` or ```Flirt.disable``` will clear any previously set 
 Flirt.clear
 ```
 
-This operation cannot be undone.
+This operation cannot be undone. Cleared listeners would have to be re-added one by one.
+
 
 ##Motivation
 
@@ -154,15 +159,18 @@ Ruby projects (and Rails projects in particular) can easily become a mess of tig
 
 The observer (or pub/sub) pattern can help decouple code, decompose large classes and allow for smaller classes with a single purpose. This promotes easy testing, readability, maintainability and eventually stability of your code.
 
-So why another gem, considering there are already several gems and a Ruby language feature that implement this pattern?
+So why use Flirt?
+
 
 ### Flirt is tiny
 
 Flirt gives you just enough to use and test the pub/sub pattern with the minimum of cruft. The number of objects is kept to a minimum for speed and ease of debugging. The extendable Listener module has only the two methods you need to use.
 
+
 ### Flirt use is obvious and readable
 
 With such a simple syntax, it's easy to understand what Flirt is doing when you revisit your code again in three months.
+
 
 ### Flirt is opinionated
 
@@ -170,24 +178,26 @@ For basic use there is no set-up necessary beyond requiring the gem.
 
 Events can only be represented as symbols, avoiding problems with string/symbol confusion.
 
-Only one parameter can be passed as event data, encouraging structured data objects rather than unreadable lists of parameters.
+Only one parameter can be passed as event data, encouraging structured data objects (hashes, structs or class instances) rather than unreadable parameter lists.
 
 Only one object (Flirt itself) can be listened to, reducing the danger of implicit coupling between publishers and subscribers. Subscribers listen to events, not objects.
+
 
 ### Flirt doesn't use threads or persistence frameworks. 
 
 This means events are fired in a deterministic way, without over-obfuscating the control flow for debug tools. You can depend on listeners being called before, for example, the end of a controler call. If you wish to delegate a task to a worker thread (like Sidekiq for example) it's easy enough to do in a listener and you're not tied to any particular implementation.
 
+
 ### Flirt has a great name
 
-Seriously, why use any other gem when you could be flirting instead?
+Seriously, why use any other pub/sub system when you could be flirting instead?
 
 
 ## Patterns and suggested use
 
 #### Listener files
 
-It can help project organisation if you keep your listeners in one place (in Rails you could use app/listeners for example) and minimise the logic in the listener class itself. Delegate to service objects when possible:
+It can help project organisation if you keep your listeners in one place (in Rails you could use app/listeners) and minimise the logic in the listener class itself. Delegate to service objects when possible:
 
 ```ruby
 class MyListener
@@ -203,11 +213,12 @@ end
 
 This will make finding your listeners very easy. It also decouples the service object completely from the event process, meaning it can be used in other contexts and testing is a breeze. 
 
-This promotes use of the Single Responsibility Principle: "A class should only have one reason to change." The class only requires amending if the event specification changes. 
+This style of coding promotes the Single Responsibility Principle: "A class should only have one reason to change." The class only requires amending if the event specification changes. 
+
 
 #### Event objects
 
-It may be useful to use an object to keep a repository of event symbols or define an object to represent an event:
+It may be useful to use an object to keep a repository of event symbols or define a class to specify an event:
 
 ```ruby
 class Events
@@ -221,7 +232,28 @@ end
 Flirt.publish Events::COOKED, pancake
 ```
 
-This eliminates invisible errors due to typos in event symbols and gives IDEs a fighting chance of giving you auto-complete for event names. This promotes DRY code: "Every piece of knowledge must have a single, unambiguous, authoritative representation within a system."
+This eliminates invisible errors due to typos in event symbols and gives IDEs a fighting chance of giving you auto-complete for event names. This style of coding promotes DRY principles: "Every piece of knowledge must have a single, unambiguous, authoritative representation within a system."
+
+Alternatively, an event class might look something like this but will obviously depend on the project:
+
+```ruby
+class PouredEvent
+  attr_accessor :millilitres, :time
+  
+  def initialize(opts = {})
+    self.millilitres = opts.fetch(:millilitres)
+    self.time        = opts.fetch(:time)
+  end
+  
+  def self.name; :poured; end
+end
+
+...
+
+Flirt.publish PouredEvent.name, PouredEvent.new(millilitres: 20, time: Time.now) 
+
+```
+
 
 ## Antipatterns and misuse
 
@@ -253,9 +285,10 @@ This will lead to intermittent bugs as nothing keeps a reference to ```TossedLis
 
 Flirt defaults to using strong references to ensure consistent behaviour.
 
+
 ## Set-up
 
-While no set-up is required for Flirt use, there is a quirk of Rails autoloading that could cause issues.
+While no set-up is required for basic Flirt use, there is a quirk of Rails autoloading that could cause issues.
 
 If you wish to use listeners on a class level, you must make sure the class is loaded. If the class definition has not been required, the listener will not be registered.
 
@@ -272,7 +305,32 @@ Dir["#{Rails.root}/app/listeners/**/*.rb"].each {|file| require file }
 
 In order to test units of behaviour, you probably want to disable Flirt and test each unit of your code in isolation. You can always enable Flirt or individual events in your test file for integration tests.
 
-You'll want to clear Flirt before each test as well, to stop callbacks building up.
+If you're creating listeners on the fly (useful for visual applications like games and dialogue based utilities), you'll want to clear Flirt before each test to stop callbacks building up. If you're setting listeners up once (by using listeners on the class level for example, useful for applications like REST APIs and web back-ends like Rails), then you don't want to clear them for each test.
+
+If you want to use both types of listener at once, testing may be more complex. You may want to re-think your architecture, but you could set up listeners thus:
+
+```ruby
+class FlipListener
+  extend Flirt::Listener
+  
+  def self.subscribe
+    subscribe_to Events::FLIPPED, with: :flip
+  end
+  subscribe
+  
+  def self.flip(pancake)
+    PancakeFlipper.new(pancake).flip
+  end
+end
+```
+
+Clear Flirt for each test, then switch on individual listeners in the appropriate tests using the listener's equivalent of:
+
+```ruby
+FlipListener.subscribe
+```
+
+#### RSpec
 
 If you're using RSpec, you probably want to disable and clear Flirt in the before block in ```spec/spec_helper.rb```:
 
@@ -282,19 +340,21 @@ RSpec.configure do |config|
 
   config.before(:each) do
     Flirt.disable
-    Flirt.clear
+    # Flirt.clear # unless you're using solely class-based listeners.
   end
   ...
 ```
 
-If you're using MiniTest, something like this might help:
+#### Minitest
+
+If you're using MiniTest, adding this to your initialisation code will disable or clear Flirt before each test:
 
 ```ruby
 module FlirtMinitestPlugin
   def before_setup
     super
     Flirt.disable
-    Flirt.clear
+    # Flirt.clear # unless you're using solely class-based listeners.
   end
 end
 
@@ -302,8 +362,6 @@ class MiniTest::Unit::TestCase
   include FlirtMinitestPlugin
 end
 ```
-
-Another gem will probably appear soon to wrap common testing patterns around the use of Flirt. Watch this space.
 
 
 ## Contributing
