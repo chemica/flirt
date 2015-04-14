@@ -41,20 +41,20 @@ Flirt.publish :picked, event_data
 
 ```ruby
 class MyListener
-    def initialize
-        Flirt.subscribe self, :picked, with: :picked_callback
-    end
+  def initialize
+    Flirt.subscribe self, :picked, with: :picked_callback
+  end
 
-    def picked_callback(event_data)
-        puts "The #{event_data[:fruit]} has been picked"
-    end
+  def picked_callback(event_data)
+    puts "The #{event_data[:fruit]} has been picked"
+  end
 end
 ```
 
 ###To unsubscribe:
 
 ```ruby
-    Flirt.unsubscribe self, :picked, with: :picked_callback
+  Flirt.unsubscribe self, :picked, with: :picked_callback
 ```
 
 
@@ -62,19 +62,19 @@ Syntactic sugar for subscription and unsubscription has been provided in the for
 
 ```ruby
 class MyListener
-    include Flirt::Listener
+  include Flirt::Listener
 
-    def initialize
-        subscribe_to :picked, with: :picked_callback
-    end
+  def initialize
+    subscribe_to :picked, with: :picked_callback
+  end
     
-    def before_destroy
-        unsubscribe_from :picked, with: :picked_callback
-    end
+  def before_destroy
+    unsubscribe_from :picked, with: :picked_callback
+  end
 
-    def picked_callback(event_data)
-        puts "The #{event_data[:fruit]} has been picked"
-    end
+  def picked_callback(event_data)
+    puts "The #{event_data[:fruit]} has been picked"
+  end
 end
 ```
 
@@ -82,13 +82,13 @@ or even:
 
 ```ruby
 class MyListener
-    extend Flirt::Listener
+  extend Flirt::Listener
 
-    subscribe_to :picked, with: :picked_callback
+  subscribe_to :picked, with: :picked_callback
 
-    def self.picked_callback(event_data)
-        puts "The #{event_data[:fruit]} has been picked"
-    end
+  def self.picked_callback(event_data)
+    puts "The #{event_data[:fruit]} has been picked"
+  end
 end
 ```
 
@@ -166,11 +166,11 @@ With such a simple syntax, it's easy to understand what Flirt is doing when you 
 
 ### Flirt is opinionated
 
-There is no set-up beyond requiring the gem.
+For basic use there is no set-up necessary beyond requiring the gem.
 
-Events are can only be represented as symbols.
+Events can only be represented as symbols, avoiding problems with string/symbol confusion.
 
-Only one parameter can be passed as event data.
+Only one parameter can be passed as event data, encouraging structured data objects rather than unreadable lists of parameters.
 
 Only one object (Flirt itself) can be listened to, reducing the danger of implicit coupling between publishers and subscribers. Subscribers listen to events, not objects.
 
@@ -181,6 +181,47 @@ This means events are fired in a deterministic way, without over-obfuscating the
 ### Flirt has a great name
 
 Seriously, why use any other gem when you could be flirting instead?
+
+
+## Patterns and suggested use
+
+#### Listener files
+
+It can help project organisation if you keep your listeners in one place (in Rails you could use app/listeners for example) and minimise the logic in the listener class itself. Delegate to service objects when possible:
+
+```ruby
+class MyListener
+  extend Flirt::Listener
+
+  subscribe_to :cooked, with: :cooked_callback
+
+  def self.cooked_callback(pancake)
+    ToppingAdder.new(pancake).add(:blueberry)    
+  end
+end
+```
+
+This will make finding your listeners very easy. It also decouples the service object completely from the event process, meaning it can be used in other contexts and testing is a breeze. 
+
+This promotes use of the Single Responsibility Principle: "A class should only have one reason to change." The class only requires amending if the event specification changes. 
+
+#### Event objects
+
+It may be useful to use an object to keep a repository of event symbols or define an object to represent an event:
+
+```ruby
+class Events
+  FLIPPED = :flipped
+  COOKED  = :cooked
+  ...
+end
+
+...
+
+Flirt.publish Events::COOKED, pancake
+```
+
+This eliminates invisible errors due to typos in event symbols and gives IDEs a fighting chance of giving you auto-complete for event names. This promotes DRY code: "Every piece of knowledge must have a single, unambiguous, authoritative representation within a system."
 
 ## Antipatterns and misuse
 
@@ -247,7 +288,6 @@ RSpec.configure do |config|
 ```
 
 If you're using MiniTest, something like this might help:
-
 
 ```ruby
 module FlirtMinitestPlugin
